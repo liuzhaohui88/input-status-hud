@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "build:web": "esbuild src/app.js --bundle --format=esm --outfile=src/app.bundle.js && esbuild src/hud.js --bundle --format=esm --outfile=src/hud.bundle.js",
     "dev": "tauri dev",
