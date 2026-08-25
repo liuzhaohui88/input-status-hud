@@ -603,6 +603,34 @@ fn position_hud_bottom_right(app: &AppHandle, w: &tauri::WebviewWindow) -> Resul
     Ok(())
 }
 
+fn rects_overlap(a: (i32, i32, i32, i32), b: (i32, i32, i32, i32)) -> bool {
+    a.0 < b.2 && a.1 < b.3 && b.0 < a.2 && b.1 < a.3
+}
+
+fn hud_visible_on_any_monitor(app: &AppHandle, w: &tauri::WebviewWindow) -> bool {
+    let Ok(pos) = w.outer_position() else {
+        return true;
+    };
+    let Ok(size) = w.outer_size() else {
+        return true;
+    };
+    let window_rect = (
+        pos.x,
+        pos.y,
+        pos.x + size.width as i32,
+        pos.y + size.height as i32,
+    );
+    let Ok(monitors) = app.available_monitors() else {
+        return true;
+    };
+    monitors.iter().any(|m| {
+        let mp = m.position();
+        let ms = m.size();
+        let monitor_rect = (mp.x, mp.y, mp.x + ms.width as i32, mp.y + ms.height as i32);
+        rects_overlap(window_rect, monitor_rect)
+    })
+}
+
 fn show_hud_window(app: &AppHandle, state: &Arc<AppState>) -> Result<(), String> {
     let w = app
         .get_webview_window("hud")
@@ -610,8 +638,12 @@ fn show_hud_window(app: &AppHandle, state: &Arc<AppState>) -> Result<(), String>
     w.set_visible_on_all_workspaces(true)
         .map_err(|e| e.to_string())?;
     w.show().map_err(|e| e.to_string())?;
-    if !state.hud_pos_set.swap(true, Ordering::SeqCst) {
+    // 从未定位过，或已拖出所有屏幕（换屏/改分辨率后）时，重新贴回右下角
+    let needs_reposition =
+        !state.hud_pos_set.load(Ordering::SeqCst) || !hud_visible_on_any_monitor(app, &w);
+    if needs_reposition {
         position_hud_bottom_right(app, &w)?;
+        state.hud_pos_set.store(true, Ordering::SeqCst);
     }
     let visible = w.is_visible().map_err(|e| e.to_string())?;
     log_line(app, &format!("HUD show completed, visible={visible}"));
@@ -817,7 +849,7 @@ pub fn run() {
 }
 #[cfg(test)]
 mod tests {
-    use super::{fetch_status, hud_bottom_right_position, AppConfig};
+    use super::{fetch_status, hud_bottom_right_position, rects_overlap, AppConfig};
 
     #[test]
     fn fetch_status_parses_api() {
@@ -865,5 +897,20 @@ mod tests {
             2.0,
         );
         assert_eq!(position, tauri::LogicalPosition::new(1192.0, 787.0));
+    }
+
+    #[test]
+    fn rects_overlap_detects_intersection() {
+        assert!(rects_overlap((0, 0, 100, 100), (50, 50, 150, 150)));
+        assert!(rects_overlap((0, 0, 100, 100), (-50, 0, 50, 100)));
+    }
+
+    #[test]
+    fn rects_overlap_rejects_disjoint() {
+        let screen = (0, 0, 1920, 1080);
+        assert!(!rects_overlap(screen, (1920, 0, 3840, 1080)));
+        assert!(!rects_overlap(screen, (2000, 2000, 3840, 3840)));
+        assert!(!rects_overlap(screen, (-1920, 0, 0, 1080)));
+        assert!(!rects_overlap(screen, (0, 1080, 1920, 2160)));
     }
 }

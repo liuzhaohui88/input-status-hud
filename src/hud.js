@@ -47,7 +47,7 @@ function render(snap) {
   const html = ms
     .map((m) => {
       const cls = m.ok ? "ok" : "bad";
-      const name = m.ok ? escapeHtml(m.model) : escapeHtml(m.model);
+      const name = escapeHtml(m.model);
       return `<div class="model ${m.ok ? "" : "err"}">
         <span class="m-dot ${cls}"></span>
         <span class="m-name">${name}</span>
