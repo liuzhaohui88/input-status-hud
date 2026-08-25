@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI HUD</title>
+<link rel="stylesheet" href="hud.css" />
+</head>
+<body>
+  <div class="hud">
+    <div class="hud-head">
+      <span id="dot" class="dot"></span>
+      <span id="title" class="title">AI 状态</span>
+      <span id="time" class="time"></span>
+      <button id="close" class="close">✕</button>
+    </div>
+    <div id="models" class="models">
+      <div class="muted">等待状态…</div>
+    </div>
+  </div>
+  <script type="module" src="hud.bundle.js"></script>
+</body>
+</html>

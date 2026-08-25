@@ -1,0 +1,8 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+src/app.bundle.js
+src/hud.bundle.js
+.DS_Store
+*.log

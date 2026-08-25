@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AIStatusWatcher",
+  "version": "1.0.0",
+  "identifier": "com.input-im.aistatuswatcher",
+  "build": {
+    "beforeDevCommand": "pnpm build:web && python3 -m http.server 1420 --directory src",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build:web",
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "AI 状态监控",
+        "label": "main",
+        "width": 840,
+        "height": 700,
+        "minWidth": 720,
+        "minHeight": 600,
+        "resizable": true,
+        "visible": false
+      },
+      {
+        "title": "AI HUD",
+        "label": "hud",
+        "url": "hud.html",
+        "width": 300,
+        "height": 150,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
+        "skipTaskbar": true,
+        "shadow": false,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Utility",
+    "shortDescription": "AI.INPUT.IM 状态监控与提醒",
+    "longDescription": "监控 https://status.input.im/ 的 AI 中转站服务，异常与恢复时系统通知提醒。支持自定义监听模型、轮询间隔、提醒频次。"
+  }
+}

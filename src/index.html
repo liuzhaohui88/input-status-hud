@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 状态监控</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ============ 状态区 ============ -->
+    <section class="card">
+      <div class="card-head">
+        <h2>服务状态</h2>
+        <div class="head-actions">
+          <button id="btn-check" class="btn subtle">立即检测</button>
+          <button id="btn-open" class="btn subtle">打开监控页</button>
+        </div>
+      </div>
+      <div id="badge" class="badge badge-init">正在获取状态…</div>
+      <div id="updated" class="muted"></div>
+      <div id="model-list" class="model-list">
+        <div class="muted">等待首次检测…</div>
+      </div>
+    </section>
+
+    <!-- ============ 配置区 ============ -->
+    <section class="card">
+      <div class="card-head">
+        <h2>配置</h2>
+      </div>
+
+      <div class="form">
+        <div class="field">
+          <label>监听模型（不勾选 = 监听全部）</label>
+          <div id="model-picker" class="model-picker">
+            <div class="muted">拉取模型清单中…</div>
+          </div>
+          <div class="inline-btns">
+            <button id="btn-select-all" class="btn tiny">全选</button>
+            <button id="btn-select-none" class="btn tiny">全不选</button>
+          </div>
+        </div>
+
+        <div class="fields-grid">
+          <div class="field">
+            <label for="poll">检测间隔（秒）</label>
+            <select id="poll">
+              <option value="10">10 秒</option>
+              <option value="20" selected>20 秒</option>
+              <option value="30">30 秒</option>
+              <option value="60">1 分钟</option>
+              <option value="120">2 分钟</option>
+              <option value="300">5 分钟</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fail">连续失败几次判定故障</label>
+            <select id="fail">
+              <option value="1">1 次（立即）</option>
+              <option value="2" selected>2 次（推荐）</option>
+              <option value="3">3 次</option>
+              <option value="5">5 次</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cooldown">同一事件最短提醒间隔</label>
+            <select id="cooldown">
+              <option value="30">30 秒</option>
+              <option value="60">1 分钟</option>
+              <option value="120" selected>2 分钟</option>
+              <option value="600">10 分钟</option>
+              <option value="1800">30 分钟</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="switches">
+          <label class="switch-row">
+            <input type="checkbox" id="sound" checked />
+            <span>提醒时播放提示音</span>
+          </label>
+          <label class="switch-row">
+            <input type="checkbox" id="recovery" checked />
+            <span>服务恢复时也提醒</span>
+          </label>
+          <label class="switch-row">
+            <input type="checkbox" id="autostart" />
+            <span>开机自动启动</span>
+          </label>
+          <label class="switch-row">
+            <input type="checkbox" id="hud" />
+            <span>显示 HUD 悬浮窗（置顶小窗，可拖动）</span>
+          </label>
+        </div>
+
+        <div class="save-row">
+          <button id="btn-save" class="btn primary">保存配置</button>
+          <span id="save-msg" class="save-msg"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="app.bundle.js"></script>
+</body>
+</html>

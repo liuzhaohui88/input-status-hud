@@ -1,0 +1,19 @@
+{
+  "name": "ai-status-watcher",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build:web": "esbuild src/app.js --bundle --format=esm --outfile=src/app.bundle.js && esbuild src/hud.js --bundle --format=esm --outfile=src/hud.bundle.js",
+    "dev": "tauri dev",
+    "build": "pnpm build:web && tauri build",
+    "icon": "tauri icon"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "esbuild": "^0.28.2"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1"
+  }
+}
