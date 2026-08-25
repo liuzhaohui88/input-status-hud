@@ -68,4 +68,4 @@ pnpm icon app-icon-src.png
 
 ## 许可证
 
-私有项目，未授权请勿分发。
+[MIT](LICENSE) © liuzhaohui
