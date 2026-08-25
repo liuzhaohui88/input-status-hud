@@ -180,6 +180,20 @@ fn short_error(raw: &str) -> String {
     raw.replace('\n', " ").trim().chars().take(90).collect()
 }
 
+/// 从源站错误文本里提取 HTTP 状态码，如 "HTTP 404: ..." -> "404"
+fn extract_http_code(raw: &str) -> Option<String> {
+    let rest = raw.find("HTTP ")? + 5;
+    let digits: String = raw[rest..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
+    if digits.len() == 3 {
+        Some(digits)
+    } else {
+        None
+    }
+}
+
 // ---------- 状态处理 ----------
 
 fn process_raw(app: &AppHandle, state: &Arc<AppState>, raw: RawStatus) {
@@ -266,8 +280,10 @@ fn process_raw(app: &AppHandle, state: &Arc<AppState>, raw: RawStatus) {
                     let err = ms.error.clone().unwrap_or_default();
                     if err.is_empty() {
                         down.push(model.clone());
+                    } else if let Some(code) = extract_http_code(&err) {
+                        down.push(format!("{model} 不可用: {code}"));
                     } else {
-                        down.push(format!("{model}: {err}"));
+                        down.push(format!("{model} 不可用: {}", short_error(&err)));
                     }
                 }
             }
@@ -854,7 +870,32 @@ pub fn run() {
 }
 #[cfg(test)]
 mod tests {
-    use super::{fetch_status, hud_bottom_right_position, rects_overlap, AppConfig};
+    use super::{
+        extract_http_code, fetch_status, hud_bottom_right_position, rects_overlap, AppConfig,
+    };
+
+    #[test]
+    fn extract_http_code_parses_status() {
+        assert_eq!(
+            extract_http_code("HTTP 404: {\"error\":{\"message\":\"Model not found\"}}"),
+            Some("404".into())
+        );
+        assert_eq!(
+            extract_http_code("HTTP 502: error code: 502\n(after 3 attempts)"),
+            Some("502".into())
+        );
+        assert_eq!(
+            extract_http_code("HTTP 503 Service Unavailable"),
+            Some("503".into())
+        );
+    }
+
+    #[test]
+    fn extract_http_code_rejects_others() {
+        assert_eq!(extract_http_code("网络错误: timeout"), None);
+        assert_eq!(extract_http_code(""), None);
+        assert_eq!(extract_http_code("timeout after 12s"), None);
+    }
 
     #[test]
     fn fetch_status_parses_api() {
