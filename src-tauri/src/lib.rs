@@ -635,6 +635,11 @@ fn show_hud_window(app: &AppHandle, state: &Arc<AppState>) -> Result<(), String>
     let w = app
         .get_webview_window("hud")
         .ok_or_else(|| "HUD 窗口不存在".to_string())?;
+    #[cfg(target_os = "macos")]
+    {
+        use tauri::window::Color;
+        let _ = w.set_background_color(Some(Color(0, 0, 0, 0)));
+    }
     w.set_visible_on_all_workspaces(true)
         .map_err(|e| e.to_string())?;
     w.show().map_err(|e| e.to_string())?;
